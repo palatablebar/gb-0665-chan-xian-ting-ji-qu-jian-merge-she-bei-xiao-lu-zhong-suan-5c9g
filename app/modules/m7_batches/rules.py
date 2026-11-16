@@ -11,6 +11,8 @@ def csv_evidence(result):
     buffer=io.StringIO();writer=csv.writer(buffer)
     writer.writerow(["运行号","类别","来源行","原因码","原值"])
     rid=result["manifest"]["run_id"]
+    coverage=result.get("coverage")
+    if coverage:writer.writerow([rid,"覆盖","",coverage.get("excluded_count",""),coverage.get("statement","")])
     for row in result.get("quarantine",[]):writer.writerow([rid,"隔离",row.get("line"),row.get("code"),json.dumps(row.get("raw",{}),ensure_ascii=False)])
     for row in result.get("results",[]):writer.writerow([rid,"结论",row.get("line",""),row.get("status",""),json.dumps(row,ensure_ascii=False)])
     return "\ufeff"+buffer.getvalue()

@@ -29,9 +29,15 @@
 | TRAP-19 | 停机多因重叠 | 静默误算或覆盖证据 | 显式安全故障换型优先级 | `app/modules/m3_model/rules.py` | `tests/test_model.py::test_priority` |
 | TRAP-23 | 相邻区间边界 | 静默误算或覆盖证据 | 半开片段不重计 | `app/modules/m3_model/rules.py` | `tests/test_model.py::test_half_open` |
 | TRAP-26 | 旧版复核 | 静默误算或覆盖证据 | 修订号条件更新 | `app/modules/m7_batches/rules.py` | `tests/test_batches.py::test_stale` |
+| TRAP-27 | 缺班当零产 | 缺报被看成真实减产 | 覆盖声明随合计与复核同行，隔离不计入不计零 | `app/modules/m6_reconcile/rules.py` | `tests/test_coverage.py::test_same_coverage_everywhere` |
+| TRAP-28 | 覆盖不齐进考核 | 临时结果被当正式结论 | 正式通过要求覆盖完整 | `app/store.py` | `tests/test_coverage.py::test_incomplete_coverage_blocks_formal` |
+| TRAP-29 | 上游更新旧结论 | 旧结果继续被复核 | 来源+月份+产线作用域取代，旧运行标已失效 | `app/store.py` | `tests/test_coverage.py::test_upstream_update_invalidates_old_result` |
+| TRAP-30 | 补报重复计产 | 补报与旧结果累加 | 全量重算+内容寻址幂等，合计只覆盖本运行班次 | `app/store.py` | `tests/test_coverage.py::test_supplement_rerun_no_double_count` |
 
 ## 对账规则
 计划分钟=运行分钟+有效停机分钟。班次总分钟=计划分钟+休息并集分钟。总产=良品+废品。起止时间使用含偏移的ISO格式，班次最长24小时。区间采用[start,end)，超出班次的停机裁剪，重叠休息只扣一次。total与good为整数件，ideal_seconds为每件理想秒数。零计划、零运行、零产量分别给出状态，不以任意分母补零。
+
+有效覆盖=本次采信班次集合；产线合计只累加采信班次，隔离班次不计入也不计零。班次对账、运行复核与证据CSV共用同一条覆盖声明。复核分临时与正式，正式通过要求覆盖完整（无隔离班报）。取代作用域=来源+覆盖月份+覆盖产线；同作用域出现更新运行后旧运行失效，复核旧运行返回409，旧记录与异常原值保留。相同内容、参数与规则版本重跑命中同一运行号，不重复计产。
 
 ## 已知不覆盖
 不推断缺失班报，不接入PLC。样例按班次隔离计算，不自动分割换产品后的节拍；混产品需分别生成班报。

@@ -10,7 +10,8 @@ def run(options=None):
     content=source(options)
     digest=identify(content.hex(),options.get("params",{}))
     result=previous(options)
-    result["manifest"]=create(digest,options.get("params",{}),time.perf_counter()-start)
+    label="upload" if "text" in options else "sample:"+options.get("sample","dirty")
+    result["manifest"]=create(digest,options.get("params",{}),time.perf_counter()-start,label)
     result=save(result)
     result["history"]=history()
     return result

@@ -14,7 +14,7 @@ def create_run(options:dict):
 @router.post("/api/runs/{run_id}/review")
 def approve(run_id:str,options:dict):
     from app.store import review
-    try:return review(run_id,options.get("revision"),options.get("decision"))
+    try:return review(run_id,options.get("revision"),options.get("decision"),options.get("stage") or "临时")
     except DomainError as exc:raise http_error(exc)
 @router.get("/api/runs/{run_id}/evidence.csv")
 def evidence(run_id:str):

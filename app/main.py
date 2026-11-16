@@ -15,7 +15,7 @@ app.mount("/static",StaticFiles(directory="app/static"),name="static")
 app.include_router(pages)
 @app.exception_handler(DomainError)
 async def error(request,exc):
-    return JSONResponse({"code":exc.code,"message":str(exc)},status_code=409 if exc.code=="STALE_VERSION" else 422)
+    return JSONResponse({"code":exc.code,"message":str(exc)},status_code=409 if exc.code in ("STALE_VERSION","SUPERSEDED") else 422)
 @app.get("/health")
 def health():return {"status":"ok"}
 from app.modules.m1_intake.handler import router as route1
